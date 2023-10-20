@@ -10,15 +10,17 @@ import java.util.Scanner;
 
 public class OnlineStore {
 
+    // Scanner for user input
     public static Scanner SCANNER = new Scanner(System.in);
-    public static HashMap<String, Product> INVENTORY =  new HashMap<>();
+    // Inventory to store products using their lowercase, space-removed names as keys
+    public static HashMap<String, Product> INVENTORY = new HashMap<>();
 
+    // List to store items in the user's cart
     private static final List<Product> cartItems = new ArrayList<>();
+
     public static void main(String[] args) throws IOException {
-
+        // Start the application by showing the home screen
         homeScreen();
-
-
     }
 
     public static void homeScreen() throws IOException {
@@ -28,26 +30,27 @@ public class OnlineStore {
         System.out.println("\t(2)-Display Cart");
         System.out.println("\t(3)-Exit the Application");
 
-
         System.out.print("Enter # Choice: ");
         int userChoice = SCANNER.nextInt();
 
-
         switch (userChoice) {
             case 1:
+                // Load the inventory and display products
                 loadInventory();
                 displayProducts();
                 break;
             case 2:
+                // Display the user's shopping cart
                 displayCart();
                 break;
             case 3:
+                // Exit the application
                 break;
         }
     }
 
     public static void loadInventory() throws IOException {
-
+        // Read product information from a CSV file and populate the inventory
         BufferedReader readFile = new BufferedReader(new FileReader("src/main/resources/products.csv"));
         String input;
         String productSku;
@@ -55,9 +58,9 @@ public class OnlineStore {
         double productPrice;
         String productDepartment;
 
-        while((input = readFile.readLine()) != null){
+        while ((input = readFile.readLine()) != null) {
             String[] productList = input.split("\\|");
-            if(!productList[0].equals("SKU")) {
+            if (!productList[0].equals("SKU")) {
                 productSku = productList[0];
                 productName = productList[1];
                 productPrice = Double.parseDouble(productList[2]);
@@ -69,72 +72,73 @@ public class OnlineStore {
     }
 
     public static void displayProducts() throws IOException {
-
+        // Display the products in the inventory and provide options for users to interact with them
         System.out.println("We carry the following inventory: ");
         for (Product product : INVENTORY.values()) {
             System.out.printf("Sku: %s | Product: %s | Price: $%.2f | Department: %s\n",
                     product.getSKU(), product.getPRODUCT_NAME(), product.getPRODUCT_PRICE(), product.getPRODUCT_DEPARTMENT());
         }
-         while (true) {
-             System.out.print("How can we help you? \n");
-             System.out.println("\t(1)-Search/filter for a product");
-             System.out.println("\t(2)-Add a product to cart");
-             System.out.println("\t(3)-Return to Home Screen");
-             System.out.print("Enter # Choice: ");
-             int choice = SCANNER.nextInt();
+        while (true) {
+            System.out.print("How can we help you? \n");
+            System.out.println("\t(1)-Search/filter for a product");
+            System.out.println("\t(2)-Add a product to cart");
+            System.out.println("\t(3)-Return to Home Screen");
+            System.out.print("Enter # Choice: ");
+            int choice = SCANNER.nextInt();
 
-             switch (choice) {
-                 case 1:
-                     while (true) {
-                         SCANNER.nextLine();
-                         System.out.print("What item are you interested in? ");
-                         String item = SCANNER.nextLine().trim().toLowerCase().replaceAll("\\s", "");
-                         System.out.println(item);
-                         System.out.println(INVENTORY.keySet());
-                         Product matchedProduct = INVENTORY.get(item);
-                         if (matchedProduct == null) {
-                             System.out.print("We don't carry that product");
-                             return;
-                         }
-                         System.out.printf("We carry %s and the price is $%.2f\n",
-                                 matchedProduct.getPRODUCT_NAME(), matchedProduct.getPRODUCT_PRICE());
+            switch (choice) {
+                case 1:
+                    while (true) {
+                        SCANNER.nextLine();
+                        System.out.print("What item are you interested in? ");
+                        String item = SCANNER.nextLine().trim().toLowerCase().replaceAll("\\s", "");
+                        Product matchedProduct = INVENTORY.get(item);
+                        if (matchedProduct == null) {
+                            System.out.print("We don't carry that product");
+                            return;
+                        }
+                        System.out.printf("We carry %s and the price is $%.2f\n",
+                                matchedProduct.getPRODUCT_NAME(), matchedProduct.getPRODUCT_PRICE());
 
-                         System.out.println("Do you want to search again? (yes/no)");
-                         String searchAgain = SCANNER.nextLine().trim();
+                        System.out.println("Do you want to search again? (yes/no)");
+                        String searchAgain = SCANNER.nextLine().trim();
 
-                         if ("no".equalsIgnoreCase(searchAgain)) {
-                             break;
-                         }
-                     }
-                     break;
-                 case 2:
-                     SCANNER.nextLine();
-                     System.out.print("Enter the product name you want to add to your cart: ");
-                     String productName = SCANNER.nextLine().trim().toLowerCase().replaceAll("\\s", "");
-                     Product productToAdd = INVENTORY.get(productName);
-                     if (productToAdd != null) {
-                         addProductToCart(productToAdd);
-                     } else {
-                         System.out.println("Product not found in inventory.");
-                     }
-                     break;
-                 case 3:
-                     homeScreen();
-                     break;
-             }
-         }
+                        if ("no".equalsIgnoreCase(searchAgain)) {
+                            break;
+                        }
+                    }
+                    break;
+                case 2:
+                    SCANNER.nextLine();
+                    System.out.print("Enter the product name you want to add to your cart: ");
+                    String productName = SCANNER.nextLine().trim().toLowerCase().replaceAll("\\s", "");
+                    Product productToAdd = INVENTORY.get(productName);
+                    if (productToAdd != null) {
+                        addProductToCart(productToAdd);
+                    } else {
+                        System.out.println("Product not found in inventory.");
+                    }
+                    break;
+                case 3:
+                    // Return to the home screen
+                    homeScreen();
+                    break;
+            }
+        }
     }
 
     public static void addProductToCart(Product product) {
+        // Add a product to the user's shopping cart
         cartItems.add(product);
         System.out.printf("%s has been added to your cart.\n", product.getPRODUCT_NAME());
     }
 
     public static void displayCart() throws IOException {
-        if(cartItems.isEmpty()) {
+        // Display the user's shopping cart and provide options to manage it
+        if (cartItems.isEmpty()) {
             System.out.println("Your shopping cart is empty\n");
             homeScreen();
-        };
+        }
 
         System.out.println("Your shopping cart contains the following items:");
         for (Product product : cartItems) {
@@ -164,13 +168,14 @@ public class OnlineStore {
                 System.out.print("Which item would you like to remove from your shopping cart ");
                 String productName = SCANNER.nextLine().trim().toLowerCase().replaceAll("\\s", "");
                 Product matchedProduct = INVENTORY.get(productName);
-                if (cartItems.remove(matchedProduct )) {
-                    System.out.printf("%s has been removed from your cart.\n", matchedProduct .getPRODUCT_NAME());
+                if (cartItems.remove(matchedProduct)) {
+                    System.out.printf("%s has been removed from your cart.\n", matchedProduct.getPRODUCT_NAME());
                 } else {
                     System.out.println("Product not found in your cart.");
                 }
                 break;
             case 3:
+                // Return to the home screen
                 homeScreen();
                 break;
         }
